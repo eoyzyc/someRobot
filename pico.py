@@ -2,30 +2,59 @@ from machine import I2C, Pin
 from pca9685 import PCA9685
 import time
 
-# Initialize I2C
-i2c = I2C(1, scl=Pin(3), sda=Pin(2))
-
-# Initialize PCA9685
+#servos
+i2c = I2C(0, scl=Pin(1), sda=Pin(0), freq=400000)
 pca = PCA9685(i2c)
-pca.frequency = 50  # 50Hz for servos/motors
+pca.set_pwm_freq(50)
+def move_servo(channel, angle):
+    print(f"Moving servo on channel {channel} to {angle} degrees")
+    pca.set_servo_angle(channel, angle)
+   
+#movements
+def rest():
+    move_servo(0,95)
+    move_servo(1,90)
+    move_servo(2,95)
+    move_servo(3,90)
+    move_servo(4,0)
+    move_servo(5,170)
+    move_servo(6,5)
+    move_servo(7,170)
+    
+def stand():
+    move_servo(4,40)
+    move_servo(5,125)
+    move_servo(6,45)
+    move_servo(7,125)
+    time.sleep(2)
+    move_servo(0,40)
+    move_servo(1,145)
+    move_servo(2,45)
+    move_servo(3,140)
+    move_servo(4,105)
+    move_servo(5,65)
+    move_servo(6,110)
+    move_servo(7,65)
 
-# Control motor on channel 0
-motor_channel = pca.channels[0]
+def walk():
+    move_servo(1,165)#145
+    move_servo(5,85)#65
+    move_servo(2,25)#45
+    move_servo(6,90)#110 
+    
+def head():
+    move_servo(15,99)
+    
 
-# Define motor speed function (duty cycle 0-100%)
-def set_motor_speed(speed):
-    if speed > 100:
-        speed = 100
-    elif speed < 0:
-        speed = 0
-    duty_cycle = int(speed * 65535 / 100)
-    motor_channel.duty_cycle = duty_cycle
 
-# Example usage
+#main
 while True:
-    set_motor_speed(50)  # Set motor to 50% speed
-    time.sleep(2)
-    set_motor_speed(100)  # Set motor to 100% speed
-    time.sleep(2)
-    set_motor_speed(0)  # Stop motor
-    time.sleep(2)
+    dowhat = input("what")
+    if dowhat == "r":
+        rest()
+    elif dowhat == "s":
+        stand()
+    elif dowhat == "w":
+        walk()
+
+    
